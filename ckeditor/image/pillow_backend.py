@@ -22,6 +22,43 @@ def image_verify(f):
         raise utils.NotAnImageException
 
 
+def resize(file_path, max_width):
+    thumbnail_format = utils.get_image_format(os.path.splitext(file_path)[1])
+    file_format = thumbnail_format.split('/')[1]
+
+    image = default_storage.open(file_path)
+    image = Image.open(image)
+
+    default_storage.delete(file_path)
+
+    if image.mode not in ('L', 'RGB'):
+        image = image.convert('RGB')
+
+    size_orig = image.size
+    width_orig = size_orig[0]
+
+    if width_orig <= max_width:
+        size = size_orig
+    else:
+        height = int(1.0*max_width/width_orig*size_orig[1])
+        size = (max_width, height)
+
+    # scale and crop to thumbnail
+    imagefit = ImageOps.fit(image, size, Image.ANTIALIAS)
+    thumbnail_io = BytesIO()
+    imagefit.save(thumbnail_io, format=file_format)
+
+    thumbnail = InMemoryUploadedFile(
+        thumbnail_io,
+        None,
+        file_path,
+        thumbnail_format,
+        len(thumbnail_io.getvalue()),
+        None)
+    thumbnail.seek(0)
+
+    return default_storage.save(file_path, thumbnail)
+
 def create_thumbnail(file_path):
     thumbnail_filename = utils.get_thumb_filename(file_path)
     thumbnail_format = utils.get_image_format(os.path.splitext(file_path)[1])

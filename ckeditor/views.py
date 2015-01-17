@@ -58,6 +58,10 @@ class ImageUploadView(generic.View):
         upload_filename = get_upload_filename(upload.name, request.user)
         saved_path = default_storage.save(upload_filename, upload)
 
+        max_width = getattr(settings, 'CKEDITOR_LIMIT_WIDTH', 0)
+        if max_width:
+            backend.resize(saved_path, max_width)
+
         if backend.should_create_thumbnail(saved_path):
             backend.create_thumbnail(saved_path)
 
