@@ -17,7 +17,7 @@ setup(
     url='https://github.com/shaunsephton/django-ckeditor',
     packages=find_packages(exclude=["*.demo"]),
     install_requires=[
-        'Django',
+        #'Django',
     ],
     include_package_data=True,
     classifiers=[

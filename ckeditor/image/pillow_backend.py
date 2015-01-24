@@ -29,8 +29,6 @@ def resize(file_path, max_width):
     image = default_storage.open(file_path)
     image = Image.open(image)
 
-    default_storage.delete(file_path)
-
     if image.mode not in ('L', 'RGB'):
         image = image.convert('RGB')
 
@@ -39,9 +37,12 @@ def resize(file_path, max_width):
 
     if width_orig <= max_width:
         size = size_orig
+        return
     else:
         height = int(1.0*max_width/width_orig*size_orig[1])
         size = (max_width, height)
+
+    default_storage.delete(file_path)
 
     # scale and crop to thumbnail
     imagefit = ImageOps.fit(image, size, Image.ANTIALIAS)
